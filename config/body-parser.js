@@ -1,6 +1,6 @@
 const bodyParser = require('body-parser');
 
-const { cleaner } = require('../utils/utils');
+const { cleaner } = require('../utils/cleaners');
 
 const fieldsToClean = ['name', 'link', 'email', 'image'];
 

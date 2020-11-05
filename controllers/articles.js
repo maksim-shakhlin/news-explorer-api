@@ -1,7 +1,9 @@
+const { ForbiddenError, NotFoundError } = require('../errors/errors');
 const Article = require('../models/article');
 
-const { cleanCreated } = require('../utils/utils');
-const { Err, NO_ARTICLE, FORBIDDEN } = require('../utils/errors');
+const { cleanCreated } = require('../utils/cleaners');
+const { NO_ARTICLE } = require('../utils/error-messages');
+const { ARTICLE_DELETED } = require('../utils/response-bodies');
 
 module.exports.getArticles = (req, res, next) => {
   Article.find({ owner: req.user._id })
@@ -30,13 +32,13 @@ module.exports.saveArticle = (req, res, next) => {
 module.exports.deleteArticle = (req, res, next) => {
   Article.findById(req.params.id)
     .select('owner')
-    .orFail(new Err(NO_ARTICLE))
+    .orFail(new NotFoundError(NO_ARTICLE))
     .then((article) => {
       if (article.owner.toString() !== req.user._id) {
-        throw new Err(FORBIDDEN);
+        throw new ForbiddenError();
       }
       return Article.findByIdAndDelete(req.params.id);
     })
-    .then(() => res.send({ message: 'Сатья успешно удалена' }))
+    .then(() => res.send(ARTICLE_DELETED))
     .catch(next);
 };

@@ -1,20 +1,26 @@
 const bcrypt = require('bcryptjs');
 const { jwtCookieOptions, getToken } = require('../config/jwt');
 const { SALT_LENGTH } = require('../config/settings');
+const {
+  NotFoundError,
+  ConflictError,
+  UnauthorizedError,
+  ForbiddenError,
+} = require('../errors/errors');
 
 const User = require('../models/user');
+
+const { cleanCreated } = require('../utils/cleaners');
 const {
-  Err,
   NO_USER,
   USER_EXISTS,
-  FORBIDDEN,
   WRONG_EMAIL_OR_PASSWORD,
-} = require('../utils/errors');
-const { cleanCreated } = require('../utils/utils');
+} = require('../utils/error-messages');
+const { LOGIN_OK, LOGOUT_OK } = require('../utils/response-bodies');
 
 module.exports.getUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(new Err(NO_USER))
+    .orFail(new NotFoundError(NO_USER))
     .then((user) => {
       res.send(user);
     })
@@ -26,7 +32,7 @@ module.exports.createUser = (req, res, next) => {
   User.findOne({ email })
     .then((user) => {
       if (user) {
-        throw new Err(USER_EXISTS);
+        throw new ConflictError(USER_EXISTS);
       }
     })
     .then(() =>
@@ -44,17 +50,15 @@ module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email })
     .select('+password')
-    .orFail(new Err(WRONG_EMAIL_OR_PASSWORD))
+    .orFail(new UnauthorizedError(WRONG_EMAIL_OR_PASSWORD))
     .then((user) => {
       return bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
-          throw new Err(WRONG_EMAIL_OR_PASSWORD);
+          throw new UnauthorizedError(WRONG_EMAIL_OR_PASSWORD);
         }
 
         const token = getToken({ _id: user._id });
-        res
-          .cookie('jwt', token, jwtCookieOptions)
-          .send({ message: 'Вы успешно авторизовались' });
+        res.cookie('jwt', token, jwtCookieOptions).send(LOGIN_OK);
       });
     })
     .catch(next);
@@ -63,12 +67,12 @@ module.exports.login = (req, res, next) => {
 module.exports.logout = (req, res, next) => {
   const { _id } = req.body;
   if (_id !== req.user._id) {
-    throw new Err(FORBIDDEN);
+    throw new ForbiddenError();
   }
   User.findById(_id)
-    .orFail(new Err(NO_USER))
+    .orFail(new NotFoundError(NO_USER))
     .then(() => {
-      res.clearCookie('jwt').send({ message: 'Вы успешно вышли' });
+      res.clearCookie('jwt').send(LOGOUT_OK);
     })
     .catch(next);
 };

@@ -1,18 +1,19 @@
 const { verify } = require('../config/jwt');
+const { UnauthorizedError } = require('../errors/errors');
 const User = require('../models/user');
-const { Err, UNAUTHORIZED } = require('../utils/errors');
+const { UNAUTHORIZED } = require('../utils/error-messages');
 
 module.exports = (req, res, next) => {
   const token = req.cookies.jwt;
 
   if (!token) {
-    next(new Err(UNAUTHORIZED));
+    next(new UnauthorizedError(UNAUTHORIZED));
     return;
   }
 
   function onBadToken() {
     res.clearCookie('jwt');
-    next(new Err(UNAUTHORIZED));
+    next(new UnauthorizedError(UNAUTHORIZED));
   }
 
   let payload;

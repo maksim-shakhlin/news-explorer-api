@@ -1,50 +1,37 @@
 const mongoose = require('mongoose');
-const { isISO8601 } = require('validator');
-const { isKeyword, isUrl } = require('../utils/validators');
+const { isISO8601, isURL } = require('validator');
+const { requiredString, required } = require('../utils/field-props');
+const { isKeyword } = require('../utils/validators');
+
+const requiredStringURL = {
+  ...requiredString,
+  validate: { validator: isURL, message: 'Невалидная ссылка' },
+};
 
 const articleSchema = new mongoose.Schema({
   keyword: {
-    type: String,
-    required: true,
+    ...requiredString,
     validate: {
       validator: isKeyword,
-      message: 'Можно только буквы и дефисы',
+      message: 'Допускаются только буквы и дефисы',
     },
   },
-  title: {
-    type: String,
-    required: true,
-  },
-  text: {
-    type: String,
-    required: true,
-  },
+  title: requiredString,
+  text: requiredString,
   date: {
-    type: String,
-    required: true,
+    ...requiredString,
     validate: {
       validator: isISO8601,
       message: 'Должна быть строка с датой в формате ISO 8601',
     },
   },
-  source: {
-    type: String,
-    required: true,
-  },
-  link: {
-    type: String,
-    required: true,
-    validate: { validator: isUrl, message: 'Неправильная ссылка' },
-  },
-  image: {
-    type: String,
-    required: true,
-    validate: { validator: isUrl, message: 'Неправильная ссылка' },
-  },
+  source: requiredString,
+  link: requiredStringURL,
+  image: requiredStringURL,
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'user',
-    required: true,
+    required,
     select: false,
   },
   __v: { type: Number, select: false },

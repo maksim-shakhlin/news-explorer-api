@@ -6,12 +6,12 @@ const {
 } = require('../controllers/articles');
 const auth = require('../middlewares/auth');
 const {
-  idValidator,
-  articleValidator,
-} = require('../utils/request-validators');
+  validateID,
+  validateArticle,
+} = require('../middlewares/request-validators');
 
 articles.get('/', auth, getArticles);
-articles.post('/', auth, articleValidator, saveArticle);
-articles.delete('/:id', auth, idValidator, deleteArticle);
+articles.post('/', auth, validateArticle, saveArticle);
+articles.delete('/:id', auth, validateID, deleteArticle);
 
 module.exports = articles;

@@ -1,27 +1,25 @@
 const mongoose = require('mongoose');
 const { isEmail } = require('validator');
+const { requiredString } = require('../utils/field-props');
 const { isName } = require('../utils/validators');
 
 const userSchema = new mongoose.Schema({
   name: {
-    type: String,
-    required: true,
-    minlength: 2,
-    maxlength: 30,
+    ...requiredString,
+    minlength: [2, 'Минимум 2 символа'],
+    maxlength: [30, 'Максимум 30 символов'],
     validate: {
       validator: isName,
       message: 'Допускаются только буквы, пробелы и дефисы',
     },
   },
   email: {
-    type: String,
-    required: true,
+    ...requiredString,
     unique: true,
-    validate: { validator: isEmail, message: 'Некорректный email' },
+    validate: { validator: isEmail, message: 'Невалидный email' },
   },
   password: {
-    type: String,
-    required: true,
+    ...requiredString,
     select: false,
   },
   __v: { type: Number, select: false },
