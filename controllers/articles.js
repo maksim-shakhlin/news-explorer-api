@@ -11,7 +11,10 @@ module.exports.getArticles = (req, res, next) => {
 };
 
 module.exports.saveArticle = (req, res, next) => {
-  const { keyword, title, text, date, source, link, image } = req.body;
+  // prettier-ignore
+  const {
+    keyword, title, text, date, source, link, image,
+  } = req.body;
   Article.create({
     keyword,
     title,
@@ -36,7 +39,7 @@ module.exports.deleteArticle = (req, res, next) => {
       if (article.owner.toString() !== req.user._id) {
         throw new ForbiddenError();
       }
-      return Article.findByIdAndDelete(req.params.id);
+      return Article.deleteOne(article);
     })
     .then(() => res.send({ message: ARTICLE_DELETED_OK }))
     .catch(next);
