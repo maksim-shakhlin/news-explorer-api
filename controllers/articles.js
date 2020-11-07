@@ -2,8 +2,7 @@ const { ForbiddenError, NotFoundError } = require('../errors/errors');
 const Article = require('../models/article');
 
 const { cleanCreated } = require('../utils/cleaners');
-const { NO_ARTICLE } = require('../utils/error-messages');
-const { ARTICLE_DELETED } = require('../utils/response-bodies');
+const { NO_ARTICLE, ARTICLE_DELETED_OK } = require('../configs/ru');
 
 module.exports.getArticles = (req, res, next) => {
   Article.find({ owner: req.user._id })
@@ -39,6 +38,6 @@ module.exports.deleteArticle = (req, res, next) => {
       }
       return Article.findByIdAndDelete(req.params.id);
     })
-    .then(() => res.send(ARTICLE_DELETED))
+    .then(() => res.send({ message: ARTICLE_DELETED_OK }))
     .catch(next);
 };

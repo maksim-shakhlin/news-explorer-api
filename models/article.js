@@ -1,11 +1,19 @@
 const mongoose = require('mongoose');
 const { isISO8601, isURL } = require('validator');
-const { requiredString, required } = require('../utils/field-props');
+const {
+  REQUIRED_FAIL,
+  URL_FAIL,
+  DATE_ISO8601_FAIL,
+  KEYWORD_FAIL,
+} = require('../configs/ru');
 const { isKeyword } = require('../utils/validators');
+
+const required = [true, REQUIRED_FAIL];
+const requiredString = { type: String, required };
 
 const requiredStringURL = {
   ...requiredString,
-  validate: { validator: isURL, message: 'Невалидная ссылка' },
+  validate: { validator: isURL, message: URL_FAIL },
 };
 
 const articleSchema = new mongoose.Schema({
@@ -13,7 +21,7 @@ const articleSchema = new mongoose.Schema({
     ...requiredString,
     validate: {
       validator: isKeyword,
-      message: 'Допускаются только буквы и дефисы',
+      message: KEYWORD_FAIL,
     },
   },
   title: requiredString,
@@ -22,7 +30,7 @@ const articleSchema = new mongoose.Schema({
     ...requiredString,
     validate: {
       validator: isISO8601,
-      message: 'Должна быть строка с датой в формате ISO 8601',
+      message: DATE_ISO8601_FAIL,
     },
   },
   source: requiredString,

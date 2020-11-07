@@ -1,5 +1,7 @@
+const { STATUS_400_DEFAULT_MESSAGE } = require('../configs/ru');
+
 class BadRequestError extends Error {
-  constructor(message = 'Такой объект уже существует') {
+  constructor(message = STATUS_400_DEFAULT_MESSAGE) {
     super(message);
     this.statusCode = 400;
   }

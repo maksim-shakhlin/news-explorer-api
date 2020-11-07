@@ -1,38 +1,68 @@
+const {
+  EMAIL_FAIL,
+  REQUIRED_FAIL,
+  HEX_FAIL,
+  DATE_ISO8601_FAIL,
+  DATE_FAIL,
+  LENGTH_MISMATCH_PATTERN,
+  TOO_SHORT_PATTERN,
+  TOO_LONG_PATTERN,
+  EMPTY,
+} = require('../configs/ru');
+const { formMessage } = require('./message');
+
 function getMessage(err) {
   switch (err.code) {
     case 'any.empty':
     case 'string.empty':
-      return 'Поле должно быть заполнено';
+      return EMPTY;
     case 'any.required':
-      return 'Это поле обязательное';
+      return REQUIRED_FAIL;
     case 'any.custom':
     case 'custom':
       return err.messages.source;
     case 'string.min':
-      return `Минимальная длина строки — ${err.local.limit}`;
+      return formMessage(TOO_SHORT_PATTERN, { n: err.local.limit });
     case 'string.max':
-      return `Максимальная длина строки — ${err.local.limit}`;
+      return formMessage(TOO_LONG_PATTERN, { n: err.local.limit });
     case 'string.length':
-      return `Длина строки должна быть ${err.local.limit}`;
+      return formMessage(LENGTH_MISMATCH_PATTERN, { n: err.local.limit });
     case 'date.base':
     case 'date.format':
-      return 'Это должна быть дата';
+      return DATE_FAIL;
     case 'date.isoDate':
-      return 'Это должна быть дата в формате ISO 8601';
+      return DATE_ISO8601_FAIL;
     case 'string.email':
-      return 'Это должен быть email';
+      return EMAIL_FAIL;
     case 'string.hex':
-      return 'Это должна быть hex-строка';
+      return HEX_FAIL;
     default:
       return '';
   }
 }
 
-module.exports = (errors) => {
+function joiErrors(errors) {
   return errors.map((error) => {
     const err = error;
     const message = getMessage(error);
     err.message = message ? `${err.local.label}: ${message}` : error.message;
     return err;
   });
+}
+
+module.exports.joiCustom = (func, message) => {
+  return (value, helpers) => {
+    if (!func(value)) {
+      return helpers.message(message);
+    }
+    return value;
+  };
+};
+
+module.exports.enableCustomErrors = (object) => {
+  const newObject = { ...object };
+  Object.keys(newObject).forEach((key) => {
+    newObject[key] = newObject[key].error(joiErrors);
+  });
+  return newObject;
 };

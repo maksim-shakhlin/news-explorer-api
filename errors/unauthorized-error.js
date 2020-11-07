@@ -1,5 +1,7 @@
+const { STATUS_401_DEFAULT_MESSAGE } = require('../configs/ru');
+
 class UnauthorizedError extends Error {
-  constructor(message = 'Необходима авторизация') {
+  constructor(message = STATUS_401_DEFAULT_MESSAGE) {
     super(message);
     this.statusCode = 401;
   }

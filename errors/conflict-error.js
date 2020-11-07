@@ -1,5 +1,7 @@
+const { STATUS_409_DEFAULT_MESSAGE } = require('../configs/ru');
+
 class ConflictError extends Error {
-  constructor(message = 'Такой объект уже существует') {
+  constructor(message = STATUS_409_DEFAULT_MESSAGE) {
     super(message);
     this.statusCode = 409;
   }

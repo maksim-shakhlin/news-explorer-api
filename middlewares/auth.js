@@ -1,7 +1,9 @@
-const { verify } = require('../config/jwt');
+const jwt = require('jsonwebtoken');
+const { JWT_SECRET } = require('../configs/config');
+
 const { UnauthorizedError } = require('../errors/errors');
 const User = require('../models/user');
-const { UNAUTHORIZED } = require('../utils/error-messages');
+const { UNAUTHORIZED } = require('../configs/ru');
 
 module.exports = (req, res, next) => {
   const token = req.cookies.jwt;
@@ -18,20 +20,17 @@ module.exports = (req, res, next) => {
 
   let payload;
   try {
-    payload = verify(token);
+    payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
     onBadToken();
     return;
   }
 
   User.findById(payload)
-    .then((user) => {
-      if (!user) {
-        onBadToken();
-      } else {
-        req.user = payload;
-        next();
-      }
+    .orFail(onBadToken)
+    .then(() => {
+      req.user = payload;
+      next();
     })
     .catch(next);
 };

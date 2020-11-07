@@ -1,9 +1,9 @@
+const {
+  MODELS_DICTIONARY,
+  MONGOOSE_CAST_ERROR_PATTERN,
+} = require('../configs/ru');
 const { BadRequestError } = require('../errors/errors');
-
-const modelDict = {
-  article: 'статьи',
-  user: 'пользователя',
-};
+const { formMessage } = require('../utils/message');
 
 module.exports = (err, req, res, next) => {
   switch (err.name) {
@@ -18,9 +18,11 @@ module.exports = (err, req, res, next) => {
     case 'CastError': {
       const path = err.path === '_id' ? 'id' : err.path;
       const parts = err.message.split('"');
-      const model = modelDict[parts[parts.length - 2]] || '';
+      const model = MODELS_DICTIONARY[parts[parts.length - 2]] || '';
       next(
-        new BadRequestError(`"${path}" ${model}${model ? ' ' : ''}невалидно`),
+        new BadRequestError(
+          formMessage(MONGOOSE_CAST_ERROR_PATTERN, { path, model }),
+        ),
       );
       break;
     }

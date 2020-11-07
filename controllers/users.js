@@ -1,6 +1,15 @@
 const bcrypt = require('bcryptjs');
-const { jwtCookieOptions, getToken } = require('../config/jwt');
-const { SALT_LENGTH } = require('../config/settings');
+const jwt = require('jsonwebtoken');
+
+const {
+  SALT_LENGTH,
+  JWT_OPTIONS,
+  JWT_COOKIE_OPTIONS,
+  WHITELIST,
+} = require('../configs/constants');
+
+const { JWT_SECRET } = require('../configs/config');
+
 const {
   NotFoundError,
   ConflictError,
@@ -15,11 +24,14 @@ const {
   NO_USER,
   USER_EXISTS,
   WRONG_EMAIL_OR_PASSWORD,
-} = require('../utils/error-messages');
-const { LOGIN_OK, LOGOUT_OK } = require('../utils/response-bodies');
+  LOGIN_OK,
+  LOGOUT_OK,
+} = require('../configs/ru');
+const { urlWithoutPath } = require('../utils/utils');
 
 module.exports.getUser = (req, res, next) => {
   User.findById(req.user._id)
+    .select('-_id')
     .orFail(new NotFoundError(NO_USER))
     .then((user) => {
       res.send(user);
@@ -40,7 +52,7 @@ module.exports.createUser = (req, res, next) => {
         .hash(password, SALT_LENGTH)
         .then((hash) => User.create({ email, name, password: hash }))
         .then((user) => {
-          res.status(201).send(cleanCreated(user, '__v', 'password'));
+          res.status(201).send(cleanCreated(user, '__v', 'password', '_id'));
         }),
     )
     .catch(next);
@@ -57,22 +69,24 @@ module.exports.login = (req, res, next) => {
           throw new UnauthorizedError(WRONG_EMAIL_OR_PASSWORD);
         }
 
-        const token = getToken({ _id: user._id });
-        res.cookie('jwt', token, jwtCookieOptions).send(LOGIN_OK);
+        const token = jwt.sign({ _id: user._id }, JWT_SECRET, JWT_OPTIONS);
+        res
+          .cookie('jwt', token, JWT_COOKIE_OPTIONS)
+          .send({ message: LOGIN_OK });
       });
     })
     .catch(next);
 };
 
 module.exports.logout = (req, res, next) => {
-  const { _id } = req.body;
-  if (_id !== req.user._id) {
-    throw new ForbiddenError();
+  if (WHITELIST.indexOf(urlWithoutPath(req.headers.referer)) === -1) {
+    next(new ForbiddenError());
+    return;
   }
-  User.findById(_id)
+  User.findById(req.user._id)
     .orFail(new NotFoundError(NO_USER))
     .then(() => {
-      res.clearCookie('jwt').send(LOGOUT_OK);
+      res.clearCookie('jwt').send({ message: LOGOUT_OK });
     })
     .catch(next);
 };

@@ -1,4 +1,4 @@
-const index = require('express').Router();
+const router = require('express').Router();
 const users = require('./users');
 const articles = require('./articles');
 const notFound = require('./not-found');
@@ -11,13 +11,13 @@ const {
 } = require('../middlewares/request-validators');
 const auth = require('../middlewares/auth');
 
-index.post('/signin', validateSignin, login);
-index.post('/signup', validateSignup, createUser);
+router.post('/signin', validateSignin, login);
+router.post('/signup', validateSignup, createUser);
 
-index.use('/users', users); // no auth here to pass ...
-index.use('/articles', articles); // ... non existing endpoints to notFound
-index.post('/logout', auth, validateLogout, logout);
+router.use('/users', users); // no auth here to pass ...
+router.use('/articles', articles); // ... non existing endpoints to notFound
+router.post('/logout', auth, validateLogout, logout);
 
-index.use('*', notFound);
+router.use('*', notFound);
 
-module.exports = index;
+module.exports = router;

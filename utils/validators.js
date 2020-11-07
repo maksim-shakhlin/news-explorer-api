@@ -1,11 +1,11 @@
+const { NAME_REGEXP, KEYWORD_REGEXP } = require('../configs/ru');
+
 module.exports.isName = (string) => {
-  const regExp = /^[a-zа-яё\s-]{1,}$/i;
-  return regExp.test(string);
+  return NAME_REGEXP.test(string);
 };
 
 module.exports.isKeyword = (string) => {
-  const regExp = /^[a-zа-яё-]{1,}$/i;
-  return regExp.test(string);
+  return KEYWORD_REGEXP.test(string);
 };
 
 module.exports.isPassword = (string) => {

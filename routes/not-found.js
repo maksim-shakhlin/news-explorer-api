@@ -1,9 +1,9 @@
-const notFound = require('express').Router();
+const router = require('express').Router();
 const { NotFoundError } = require('../errors/errors');
-const { NO_ENDPOINT } = require('../utils/error-messages');
+const { NO_ENDPOINT } = require('../configs/ru');
 
-notFound.all('/', () => {
-  throw new NotFoundError(NO_ENDPOINT);
+router.all('/', (req, res, next) => {
+  return next(new NotFoundError(NO_ENDPOINT));
 });
 
-module.exports = notFound;
+module.exports = router;

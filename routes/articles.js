@@ -1,4 +1,4 @@
-const articles = require('express').Router();
+const router = require('express').Router();
 const {
   getArticles,
   saveArticle,
@@ -10,8 +10,8 @@ const {
   validateArticle,
 } = require('../middlewares/request-validators');
 
-articles.get('/', auth, getArticles);
-articles.post('/', auth, validateArticle, saveArticle);
-articles.delete('/:id', auth, validateID, deleteArticle);
+router.get('/', auth, getArticles);
+router.post('/', auth, validateArticle, saveArticle);
+router.delete('/:id', auth, validateID, deleteArticle);
 
-module.exports = articles;
+module.exports = router;

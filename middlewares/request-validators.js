@@ -1,42 +1,27 @@
 const { celebrate, Joi } = require('celebrate');
 const { isURL } = require('validator');
-const joiErrors = require('../utils/joi-errors');
 const { isName, isPassword, isKeyword } = require('../utils/validators');
+const { joiCustom, enableCustomErrors } = require('../utils/joi-errors');
+const {
+  URL_FAIL,
+  NAME_FAIL,
+  PASSWORD_FAIL,
+  KEYWORD_FAIL,
+  JSON_CONTENT_FAIL,
+  REFERER_HEADER_REQUIRED_FAIL,
+} = require('../configs/ru');
 
-function decorateForJoi(func, message) {
-  return (value, helpers) => {
-    if (!func(value)) {
-      return helpers.message(message);
-    }
-    return value;
-  };
-}
-
-function joify(object) {
-  const newObject = { ...object };
-  Object.keys(newObject).forEach((key) => {
-    newObject[key] = newObject[key].error(joiErrors);
-  });
-  return newObject;
-}
-
-const isUrlJoi = decorateForJoi(isURL, 'Некорректная ссылка');
-const isNameJoi = decorateForJoi(
-  isName,
-  'Можно только буквы, пробелы и дефисы',
-);
-const isPasswordJoi = decorateForJoi(
-  isPassword,
-  'Можно латинские буквы, цифры и любые спецсимволы',
-);
-const isKeywordJoi = decorateForJoi(isKeyword, 'Можно только буквы и дефисы');
+const isUrlJoi = joiCustom(isURL, URL_FAIL);
+const isNameJoi = joiCustom(isName, NAME_FAIL);
+const isPasswordJoi = joiCustom(isPassword, PASSWORD_FAIL);
+const isKeywordJoi = joiCustom(isKeyword, KEYWORD_FAIL);
 
 const _id = Joi.string().required().length(24).hex();
 const str = Joi.string().required();
 
 const id = {
   params: Joi.object().keys(
-    joify({
+    enableCustomErrors({
       id: _id,
     }),
   ),
@@ -44,7 +29,7 @@ const id = {
 
 const article = {
   body: Joi.object().keys(
-    joify({
+    enableCustomErrors({
       keyword: str.custom(isKeywordJoi),
       title: str,
       text: str,
@@ -56,7 +41,7 @@ const article = {
   ),
 };
 
-const authBody = joify({
+const authBody = enableCustomErrors({
   email: Joi.string().required().email(),
   password: Joi.string().required().min(8).custom(isPasswordJoi),
 });
@@ -69,29 +54,29 @@ const signup = {
   body: Joi.object()
     .keys(authBody)
     .keys(
-      joify({
+      enableCustomErrors({
         name: str.min(2).max(30).custom(isNameJoi),
       }),
     ),
 };
 
 const logout = {
-  body: Joi.object().keys(
-    joify({
-      _id,
-    }),
-  ),
+  headers: Joi.object()
+    .keys({
+      referer: str.messages({
+        'any.required': REFERER_HEADER_REQUIRED_FAIL,
+      }),
+    })
+    .unknown(true),
 };
 
 const json = {
   headers: Joi.object()
-    .keys(
-      joify({
-        'content-type': Joi.string().valid('application/json').messages({
-          'any.only': 'Принимается только application/json',
-        }),
+    .keys({
+      'content-type': Joi.string().valid('application/json').messages({
+        'any.only': JSON_CONTENT_FAIL,
       }),
-    )
+    })
     .unknown(true),
 };
 
