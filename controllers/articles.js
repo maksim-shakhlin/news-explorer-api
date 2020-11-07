@@ -11,10 +11,7 @@ module.exports.getArticles = (req, res, next) => {
 };
 
 module.exports.saveArticle = (req, res, next) => {
-  // prettier-ignore
-  const {
-    keyword, title, text, date, source, link, image,
-  } = req.body;
+  const { keyword, title, text, date, source, link, image } = req.body;
   Article.create({
     keyword,
     title,
