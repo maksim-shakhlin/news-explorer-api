@@ -19,12 +19,12 @@ module.exports.formMessage = (pattern, values) => {
       return word;
     }
     const w = word.substring(1);
-    if (w.indexOf('-') !== -1) {
+    if (w.includes('-')) {
       const [value, form] = w.split('-');
       return plural(DICTIONARY[form], values[value]);
     }
     return values[w];
   });
 
-  return words.filter((x) => [undefined, null, ''].indexOf(x) === -1).join(' ');
+  return words.filter((x) => ![undefined, null, ''].includes(x)).join(' ');
 };

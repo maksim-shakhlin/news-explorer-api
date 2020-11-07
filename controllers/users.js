@@ -79,7 +79,7 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.logout = (req, res, next) => {
-  if (WHITELIST.indexOf(urlWithoutPath(req.headers.referer)) === -1) {
+  if (!WHITELIST.includes(urlWithoutPath(req.headers.referer))) {
     next(new ForbiddenError());
     return;
   }

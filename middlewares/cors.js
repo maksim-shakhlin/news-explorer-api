@@ -3,7 +3,7 @@ const { WHITELIST } = require('../configs/constants');
 
 const options = {
   origin: (origin, callback) => {
-    if (WHITELIST.indexOf(origin) !== -1) {
+    if (WHITELIST.includes(origin)) {
       callback(null, true);
     } else {
       callback(null, false);
