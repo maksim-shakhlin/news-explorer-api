@@ -12,16 +12,20 @@ module.exports.getArticles = (req, res, next) => {
 
 module.exports.saveArticle = (req, res, next) => {
   const { keyword, title, text, date, source, link, image } = req.body;
-  Article.create({
-    keyword,
-    title,
-    text,
-    date,
-    source,
-    link,
-    image,
-    owner: req.user._id,
-  })
+  Article.findOneAndUpdate(
+    { link, owner: req.user._id },
+    {
+      keyword,
+      title,
+      text,
+      date,
+      source,
+      link,
+      image,
+      owner: req.user._id,
+    },
+    { upsert: true, new: true },
+  )
     .then((article) => {
       res.status(201).send(cleanCreated(article, '__v', 'owner'));
     })

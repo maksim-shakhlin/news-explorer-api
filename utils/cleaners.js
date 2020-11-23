@@ -1,4 +1,4 @@
-const cleanSpaces = (string) => {
+const cleanSpaces = (string = '') => {
   return string.replace(/\s+/g, ' ').trim();
 };
 

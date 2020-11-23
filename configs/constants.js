@@ -1,6 +1,6 @@
 const { NODE_ENV } = require('./config');
 
-module.exports.SALT_LENGTH = 10;
+module.exports.SALT_ROUNDS = 10;
 
 module.exports.JWT_OPTIONS = {
   expiresIn: '7d',

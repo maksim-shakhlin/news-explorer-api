@@ -13,7 +13,7 @@ module.exports.LOGOUT_OK = 'Вы успешно вышли';
 
 module.exports.REQUIRED_FAIL = 'Это поле обязательное';
 module.exports.URL_FAIL = 'Невалидная ссылка';
-module.exports.KEYWORD_FAIL = 'Допускаются только буквы и дефисы';
+module.exports.KEYWORD_FAIL = 'Допускаются только буквы, пробелы и дефисы';
 module.exports.DATE_ISO8601_FAIL =
   'Должна быть строка с датой в формате ISO 8601';
 module.exports.EMAIL_FAIL = 'Невалидный email';
@@ -25,8 +25,6 @@ module.exports.HEX_FAIL = 'Это должна быть hex-строка';
 module.exports.PASSWORD_FAIL =
   'Можно латинские буквы, цифры и любые спецсимволы';
 module.exports.JSON_CONTENT_FAIL = 'Принимается только application/json';
-module.exports.REFERER_HEADER_REQUIRED_FAIL =
-  'HTTP-заголовок referer обязателен';
 
 // Patterns
 
@@ -60,4 +58,4 @@ module.exports.MODELS_DICTIONARY = {
 // Regexps
 
 module.exports.NAME_REGEXP = /^[a-zа-яё\s-]{1,}$/i;
-module.exports.KEYWORD_REGEXP = /^[a-zа-яё-]{1,}$/i;
+module.exports.KEYWORD_REGEXP = /^[a-zа-яё\s-]{1,}$/i;

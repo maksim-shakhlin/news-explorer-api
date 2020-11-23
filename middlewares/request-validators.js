@@ -8,7 +8,6 @@ const {
   PASSWORD_FAIL,
   KEYWORD_FAIL,
   JSON_CONTENT_FAIL,
-  REFERER_HEADER_REQUIRED_FAIL,
 } = require('../configs/ru');
 
 const isUrlJoi = joiCustom(isURL, URL_FAIL);
@@ -60,16 +59,6 @@ const signup = {
     ),
 };
 
-const logout = {
-  headers: Joi.object()
-    .keys({
-      referer: str.messages({
-        'any.required': REFERER_HEADER_REQUIRED_FAIL,
-      }),
-    })
-    .unknown(true),
-};
-
 const json = {
   headers: Joi.object()
     .keys({
@@ -94,5 +83,4 @@ module.exports = celebratify({
   validateSignup: signup,
   validateSignin: signin,
   isJsonContent: json,
-  validateLogout: logout,
 });

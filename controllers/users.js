@@ -2,10 +2,9 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const {
-  SALT_LENGTH,
+  SALT_ROUNDS,
   JWT_OPTIONS,
   JWT_COOKIE_OPTIONS,
-  WHITELIST,
 } = require('../configs/constants');
 
 const { JWT_SECRET } = require('../configs/config');
@@ -14,7 +13,6 @@ const {
   NotFoundError,
   ConflictError,
   UnauthorizedError,
-  ForbiddenError,
 } = require('../errors/errors');
 
 const User = require('../models/user');
@@ -27,7 +25,6 @@ const {
   LOGIN_OK,
   LOGOUT_OK,
 } = require('../configs/ru');
-const { urlWithoutPath } = require('../utils/utils');
 
 module.exports.getUser = (req, res, next) => {
   User.findById(req.user._id)
@@ -49,7 +46,7 @@ module.exports.createUser = (req, res, next) => {
     })
     .then(() =>
       bcrypt
-        .hash(password, SALT_LENGTH)
+        .hash(password, SALT_ROUNDS)
         .then((hash) => User.create({ email, name, password: hash }))
         .then((user) => {
           res.status(201).send(cleanCreated(user, '__v', 'password', '_id'));
@@ -79,10 +76,6 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.logout = (req, res, next) => {
-  if (!WHITELIST.includes(urlWithoutPath(req.headers.referer))) {
-    next(new ForbiddenError());
-    return;
-  }
   User.findById(req.user._id)
     .orFail(new NotFoundError(NO_USER))
     .then(() => {
